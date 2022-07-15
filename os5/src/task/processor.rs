@@ -60,11 +60,12 @@ pub fn run_tasks() {
             // access coming task TCB exclusively
             let mut task_inner = task.inner_exclusive_access();
             let next_task_cx_ptr = &task_inner.task_cx as *const TaskContext;
+            // println!("my stride : {}", task_inner.stride);
             task_inner.task_status = TaskStatus::Running;
             if task_inner.start_running_time == 0 {
                 task_inner.start_running_time = get_time_us();
             }
-            task_inner.stride += BIG_STRIDE / task_inner.priority;
+            task_inner.stride += (BIG_STRIDE / task_inner.priority);
             drop(task_inner);
             // release coming task TCB manually
             processor.current = Some(task);

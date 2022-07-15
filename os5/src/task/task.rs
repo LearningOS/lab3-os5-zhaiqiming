@@ -32,7 +32,7 @@ impl Ord for TaskControlBlock {
 
 impl PartialOrd for TaskControlBlock {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(other.inner_exclusive_access().stride.cmp(&self.inner_exclusive_access().stride))
+        Some(self.cmp(other))
     }
 }
 impl PartialEq for TaskControlBlock{
@@ -133,7 +133,7 @@ impl TaskControlBlock {
                     stride: 0,
                     priority: 16,
                     syscall_times: [0;MAX_SYSCALL_NUM],
-                    start_running_time: 16,
+                    start_running_time: 0,
                 })
             },
         };
@@ -203,7 +203,7 @@ impl TaskControlBlock {
                     stride: 0,
                     priority: 16,
                     syscall_times: [0;MAX_SYSCALL_NUM],
-                    start_running_time: 16,
+                    start_running_time: 0,
                 })
             },
         });
@@ -247,10 +247,10 @@ impl TaskControlBlock {
                     parent: Some(Arc::downgrade(self)),
                     children: Vec::new(),
                     exit_code: 0,
-                    stride: parent_inner.stride,
-                    priority: parent_inner.stride,
-                    syscall_times: parent_inner.syscall_times,
-                    start_running_time: parent_inner.start_running_time,
+                    stride: 0,
+                    priority: 16,
+                    syscall_times: [0;MAX_SYSCALL_NUM],
+                    start_running_time: 0,
                 })
             },
         });

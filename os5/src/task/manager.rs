@@ -8,12 +8,11 @@ use super::TaskControlBlock;
 use crate::sync::UPSafeCell;
 use alloc::collections::VecDeque;
 use alloc::sync::Arc;
-use alloc::collections::BinaryHeap;
 use lazy_static::*;
 
 pub struct TaskManager {
-    // ready_queue: VecDeque<Arc<TaskControlBlock>>,
-    ready_queue: BinaryHeap<Arc<TaskControlBlock>>,
+    ready_queue: VecDeque<Arc<TaskControlBlock>>,
+    // ready_queue: BinaryHeap<Arc<TaskControlBlock>>,
 }
 
 // YOUR JOB: FIFO->Stride
@@ -21,16 +20,35 @@ pub struct TaskManager {
 impl TaskManager {
     pub fn new() -> Self {
         Self {
-            ready_queue: BinaryHeap::new(),
+            ready_queue: VecDeque::new(),
         }
     }
     /// Add process back to ready queue
     pub fn add(&mut self, task: Arc<TaskControlBlock>) {
-        self.ready_queue.push(task);
+        self.ready_queue.push_back(task);
     }
     /// Take a process out of the ready queue
     pub fn fetch(&mut self) -> Option<Arc<TaskControlBlock>> {
-        self.ready_queue.pop()
+        // return self.ready_queue.pop_front();
+        if self.ready_queue.is_empty() {
+            return None;
+        }
+        let mut min_stride = isize::max_value() as isize;
+        for task in self.ready_queue.iter() {
+            let inner = task.inner_exclusive_access();
+            min_stride = min_stride.min(inner.stride);
+        }
+        let mut index = 0;
+        for (i, task) in self.ready_queue.iter().enumerate() {
+            let inner = task.inner_exclusive_access();
+            if min_stride == inner.stride {
+                index = i;
+                break;
+            }
+        }
+        // println!("{} - {}", self.ready_queue.get(index).unwrap().pid.0, self.ready_queue.get(index).unwrap().inner_exclusive_access().stride);
+        return self.ready_queue.swap_remove_back(index);
+
     }
 }
 
