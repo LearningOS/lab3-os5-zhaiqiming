@@ -32,7 +32,7 @@ impl Ord for TaskControlBlock {
 
 impl PartialOrd for TaskControlBlock {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
+        Some(other.inner_exclusive_access().stride.cmp(&self.inner_exclusive_access().stride))
     }
 }
 impl PartialEq for TaskControlBlock{
