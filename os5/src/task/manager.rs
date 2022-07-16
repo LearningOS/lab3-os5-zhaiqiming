@@ -46,15 +46,17 @@ impl TaskManager {
             let inner = task.inner_exclusive_access();
             if min_stride == inner.stride {
                 index = i;
+                break;
             }
         }
-        // {
-        //     let mut queue = &mut self.ready_queue;
-        //     let mut inner = queue.get(index).unwrap().inner_exclusive_access();
-        //     // println!("{} - {} - {}", queue.get(index).unwrap().pid.0, inner.stride, inner.priority);
-        // }
+        {
+            let mut queue = &mut self.ready_queue;
+            let mut inner = queue.get(index).unwrap().inner_exclusive_access();
+            // println!("{} - {} - {}", queue.get(index).unwrap().pid.0, inner.stride, inner.priority);
+        }
         return self.ready_queue.remove(index);
     }
+    
 }
 
 lazy_static! {

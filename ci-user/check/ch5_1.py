@@ -12,4 +12,4 @@ def stride_test(result):
         print('\033[91m[FAIL]\033[0m Stride Test')
         print('\nTest passed: 0/1')
 
-    assert max(factors) / min(factors) < 1.5
+    assert max(factors) / min(factors) < 2
