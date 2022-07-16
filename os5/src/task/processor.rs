@@ -67,7 +67,7 @@ pub fn run_tasks() {
             }
             // let add_res = task_inner.stride.wrapping_add(BIG_STRIDE / p);
             // task_inner.stride = add_res;
-            task_inner.stride = task_inner.stride.wrapping_add(BIG_STRIDE / task_inner.priority);
+            task_inner.stride += BIG_STRIDE / task_inner.priority;
             drop(task_inner);
             // release coming task TCB manually
             processor.current = Some(task);

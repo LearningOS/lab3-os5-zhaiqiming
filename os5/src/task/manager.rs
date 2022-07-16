@@ -6,13 +6,14 @@
 
 use super::TaskControlBlock;
 use crate::sync::UPSafeCell;
-use alloc::collections::VecDeque;
+use alloc::collections::{VecDeque, BTreeMap};
 use alloc::sync::Arc;
 use crate::config::BIG_STRIDE;
 use lazy_static::*;
 
 pub struct TaskManager {
     ready_queue: VecDeque<Arc<TaskControlBlock>>,
+    btmap: BTreeMap<usize, usize>,
     // ready_queue: BinaryHeap<Arc<TaskControlBlock>>,
 }
 
@@ -22,6 +23,7 @@ impl TaskManager {
     pub fn new() -> Self {
         Self {
             ready_queue: VecDeque::new(),
+            btmap: BTreeMap::new(),
         }
     }
     /// Add process back to ready queue
@@ -35,24 +37,27 @@ impl TaskManager {
             return None;
         }
         let mut min_stride = self.ready_queue.get(0 as usize).unwrap().inner_exclusive_access().stride;
-        for task in self.ready_queue.iter() {
-            let inner = task.inner_exclusive_access();
-            if ((inner.stride - min_stride) as i8) < 0 {
-                min_stride = inner.stride;
-            }
-        }
         let mut index = 0;
         for (i, task) in self.ready_queue.iter().enumerate() {
             let inner = task.inner_exclusive_access();
-            if min_stride == inner.stride {
+            let gap: i8 = (inner.stride - min_stride) as i8;
+            if gap < 0 {
+                min_stride = inner.stride;
                 index = i;
-                break;
             }
         }
-        {
-            let mut queue = &mut self.ready_queue;
-            let mut inner = queue.get(index).unwrap().inner_exclusive_access();
-            // println!("{} - {} - {}", queue.get(index).unwrap().pid.0, inner.stride, inner.priority);
+        let pid = self.ready_queue.get(index).unwrap().pid.0;
+        // only for ch5_stride_test
+        match self.btmap.get(&pid) {
+            Some(item) => {
+                self.btmap.insert(pid, item + 1);
+            }
+            None => {
+                self.btmap.insert(pid, 0);
+            }
+        }
+        if self.btmap.len() < 411 {
+            println!("DEBUG : {:?}", self.btmap);
         }
         return self.ready_queue.remove(index);
     }
