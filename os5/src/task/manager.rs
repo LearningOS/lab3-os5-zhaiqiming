@@ -8,6 +8,7 @@ use super::TaskControlBlock;
 use crate::sync::UPSafeCell;
 use alloc::collections::VecDeque;
 use alloc::sync::Arc;
+use crate::config::BIG_STRIDE;
 use lazy_static::*;
 
 pub struct TaskManager {
@@ -33,10 +34,13 @@ impl TaskManager {
         if self.ready_queue.is_empty() {
             return None;
         }
-        let mut min_stride = isize::max_value() as isize;
+        let mut min_stride = BIG_STRIDE;
         for task in self.ready_queue.iter() {
             let inner = task.inner_exclusive_access();
-            min_stride = min_stride.min(inner.stride);
+            // min_stride = min_stride.min(inner.stride);
+            if ((inner.stride - min_stride) as i16) < 0 {
+                min_stride = inner.stride;
+            }
         }
         let mut index = 0;
         for (i, task) in self.ready_queue.iter().enumerate() {
