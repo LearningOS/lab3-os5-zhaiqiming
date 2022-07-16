@@ -253,7 +253,7 @@ impl TaskControlBlock {
                     start_running_time: 0,
                 })
             },
-        });
+        }); 
         // add child
         parent_inner.children.push(task_control_block.clone());
         // modify kernel_sp in trap_cx
