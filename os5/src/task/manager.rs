@@ -46,7 +46,11 @@ impl TaskManager {
                 break;
             }
         }
-        // println!("{} - {}", self.ready_queue.get(index).unwrap().pid.0, self.ready_queue.get(index).unwrap().inner_exclusive_access().stride);
+        {
+            let mut queue = &mut self.ready_queue;
+            let mut inner = queue.get(index).unwrap().inner_exclusive_access();
+            // println!("{} - {} - {}", queue.get(index).unwrap().pid.0, inner.stride, inner.priority);
+        }
         return self.ready_queue.swap_remove_back(index);
 
     }

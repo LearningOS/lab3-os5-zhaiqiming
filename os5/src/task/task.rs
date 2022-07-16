@@ -24,23 +24,23 @@ pub struct TaskControlBlock {
     inner: UPSafeCell<TaskControlBlockInner>,
 }
 
-impl Ord for TaskControlBlock {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other.inner_exclusive_access().stride.cmp(&self.inner_exclusive_access().stride)
-    }
-}
+// impl Ord for TaskControlBlock {
+//     fn cmp(&self, other: &Self) -> Ordering {
+//         other.inner_exclusive_access().stride.cmp(&self.inner_exclusive_access().stride)
+//     }
+// }
 
-impl PartialOrd for TaskControlBlock {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-impl PartialEq for TaskControlBlock{
-    fn eq(&self,other:&Self)-> bool{
-        other.inner_exclusive_access().stride == self.inner_exclusive_access().stride
-    }
-}
-impl Eq for TaskControlBlock{}
+// impl PartialOrd for TaskControlBlock {
+//     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+//         Some(self.cmp(other))
+//     }
+// }
+// impl PartialEq for TaskControlBlock{
+//     fn eq(&self,other:&Self)-> bool{
+//         other.inner_exclusive_access().stride == self.inner_exclusive_access().stride
+//     }
+// }
+// impl Eq for TaskControlBlock{}
 
 /// Structure containing more process content
 ///
