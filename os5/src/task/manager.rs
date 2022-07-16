@@ -34,11 +34,11 @@ impl TaskManager {
         if self.ready_queue.is_empty() {
             return None;
         }
-        let mut min_stride = BIG_STRIDE;
+        let mut min_stride = self.ready_queue.get(0 as usize).unwrap().inner_exclusive_access().stride;
         for task in self.ready_queue.iter() {
             let inner = task.inner_exclusive_access();
             // min_stride = min_stride.min(inner.stride);
-            if ((inner.stride - min_stride) as i16) < 0 {
+            if ((inner.stride - min_stride) as i8) < 0 {
                 min_stride = inner.stride;
             }
         }

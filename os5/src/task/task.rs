@@ -66,9 +66,9 @@ pub struct TaskControlBlockInner {
     /// It is set when active exit or execution error occurs
     pub exit_code: i32,
     /// stride: for stride_schedule
-    pub stride: u16,
+    pub stride: u8,
     /// priority
-    pub priority: u16,
+    pub priority: u8,
     /// syscall times
     pub syscall_times: [u32; MAX_SYSCALL_NUM],
     /// start_running_time
@@ -270,7 +270,7 @@ impl TaskControlBlock {
     }
     pub fn set_priority(&self, _prio : isize) -> isize {
         let mut inner = self.inner_exclusive_access();
-        inner.priority = _prio as u16;
+        inner.priority = _prio as u8;
         _prio
     }
 }
