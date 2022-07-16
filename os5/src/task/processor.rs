@@ -9,8 +9,9 @@ use super::__switch;
 use super::{fetch_task, TaskStatus};
 use super::{TaskContext, TaskControlBlock};
 use crate::sync::UPSafeCell;
+use crate::mm::{has_mapped, has_unmapped, MapPermission};
 use crate::timer::get_time_us;
-use crate::config::BIG_STRIDE;
+use crate::config::{BIG_STRIDE, PAGE_SIZE};
 use crate::syscall::TaskInfo;
 use crate::trap::TrapContext;
 use alloc::sync::Arc;
@@ -59,10 +60,13 @@ pub fn run_tasks() {
             // access coming task TCB exclusively
             let mut task_inner = task.inner_exclusive_access();
             let next_task_cx_ptr = &task_inner.task_cx as *const TaskContext;
+            // println!("my stride : {}", task_inner.stride);
             task_inner.task_status = TaskStatus::Running;
             if task_inner.start_running_time == 0 {
                 task_inner.start_running_time = get_time_us();
             }
+            // let add_res = task_inner.stride.wrapping_add(BIG_STRIDE / p);
+            // task_inner.stride = add_res;
             task_inner.stride += BIG_STRIDE / task_inner.priority;
             drop(task_inner);
             // release coming task TCB manually
@@ -133,4 +137,33 @@ pub fn increase_syscall_time(syscall_number: usize){
         inner.syscall_times[syscall_number] += 1;
     }
     // let mut inner = current_task().unwrap().inner_exclusive_access();
+}
+
+pub fn mmap(start: usize, len: usize, port: usize) -> isize {
+    if start % PAGE_SIZE != 0 || port & !0x7 != 0 || port & 0x7 == 0 {
+        return -1;
+    }
+    if let Some(task) = current_task() {
+        let mut inner = task.inner_exclusive_access();
+        if has_mapped(inner.get_user_token(), start, len) == false {
+            return -1;
+        }
+        inner.memory_set.mmap(start, len, port);
+        // inner.memory_set.insert_framed_area(VirtAddr::from(start), VirtAddr::from(start + len), permission);   
+    }
+    0
+}
+
+pub fn munmap(start: usize, len: usize) -> isize {
+    if start % PAGE_SIZE != 0 {
+        return -1;
+    }
+    if let Some(task) = current_task() {
+        let mut inner = task.inner_exclusive_access();
+        if has_unmapped(inner.get_user_token(), start, len) {
+            return -1;
+        }
+        inner.memory_set.munmap(start, len);
+    }
+    0
 }

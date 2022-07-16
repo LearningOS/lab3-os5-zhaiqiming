@@ -2,11 +2,7 @@
 
 use crate::loader::get_app_data_by_name;
 use crate::mm::{translated_refmut, translated_str, translate_va_to_pa};
-use crate::task::{
-    add_task, current_task, current_user_token, exit_current_and_run_next,
-    suspend_current_and_run_next, TaskStatus, TaskControlBlock, increase_syscall_time as increase_syscall_time_task, 
-    get_task_info, 
-};
+use crate::task::{*};
 use crate::timer::get_time_us;
 use alloc::sync::Arc;
 use crate::config::MAX_SYSCALL_NUM;
@@ -129,7 +125,7 @@ pub fn sys_task_info(ti: *mut TaskInfo) -> isize {
 }
 
 pub fn increase_syscall_time(syscall_number: usize){
-    increase_syscall_time_task(syscall_number);
+    crate::task::increase_syscall_time(syscall_number);
 }
 
 // YOUR JOB: 实现sys_set_priority，为任务添加优先级
@@ -143,11 +139,11 @@ pub fn sys_set_priority(_prio: isize) -> isize {
 
 // YOUR JOB: 扩展内核以实现 sys_mmap 和 sys_munmap
 pub fn sys_mmap(_start: usize, _len: usize, _port: usize) -> isize {
-    -1
+    crate::task::mmap(_start, _len, _port)
 }
 
 pub fn sys_munmap(_start: usize, _len: usize) -> isize {
-    -1
+    crate::task::munmap(_start, _len)
 }
 
 //

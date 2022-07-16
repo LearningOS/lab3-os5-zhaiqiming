@@ -13,7 +13,7 @@ fn spin_delay() {
 }
 
 // to get enough accuracy, MAX_TIME (the running time of each process) should > 1000 mseconds.
-const MAX_TIME: isize = 4000;
+const MAX_TIME: isize = 8000;
 fn count_during(prio: isize) -> isize {
     let start_time = get_time();
     let mut acc = 0;

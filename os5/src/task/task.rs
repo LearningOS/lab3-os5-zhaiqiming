@@ -24,23 +24,23 @@ pub struct TaskControlBlock {
     inner: UPSafeCell<TaskControlBlockInner>,
 }
 
-impl Ord for TaskControlBlock {
-    fn cmp(&self, other: &Self) -> Ordering {
-        other.inner_exclusive_access().stride.cmp(&self.inner_exclusive_access().stride)
-    }
-}
+// impl Ord for TaskControlBlock {
+//     fn cmp(&self, other: &Self) -> Ordering {
+//         other.inner_exclusive_access().stride.cmp(&self.inner_exclusive_access().stride)
+//     }
+// }
 
-impl PartialOrd for TaskControlBlock {
-    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-impl PartialEq for TaskControlBlock{
-    fn eq(&self,other:&Self)-> bool{
-        other.inner_exclusive_access().stride == self.inner_exclusive_access().stride
-    }
-}
-impl Eq for TaskControlBlock{}
+// impl PartialOrd for TaskControlBlock {
+//     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+//         Some(self.cmp(other))
+//     }
+// }
+// impl PartialEq for TaskControlBlock{
+//     fn eq(&self,other:&Self)-> bool{
+//         other.inner_exclusive_access().stride == self.inner_exclusive_access().stride
+//     }
+// }
+// impl Eq for TaskControlBlock{}
 
 /// Structure containing more process content
 ///
@@ -66,9 +66,9 @@ pub struct TaskControlBlockInner {
     /// It is set when active exit or execution error occurs
     pub exit_code: i32,
     /// stride: for stride_schedule
-    pub stride: isize,
+    pub stride: u8,
     /// priority
-    pub priority: isize,
+    pub priority: u8,
     /// syscall times
     pub syscall_times: [u32; MAX_SYSCALL_NUM],
     /// start_running_time
@@ -133,7 +133,7 @@ impl TaskControlBlock {
                     stride: 0,
                     priority: 16,
                     syscall_times: [0;MAX_SYSCALL_NUM],
-                    start_running_time: 16,
+                    start_running_time: 0,
                 })
             },
         };
@@ -203,7 +203,7 @@ impl TaskControlBlock {
                     stride: 0,
                     priority: 16,
                     syscall_times: [0;MAX_SYSCALL_NUM],
-                    start_running_time: 16,
+                    start_running_time: 0,
                 })
             },
         });
@@ -247,13 +247,13 @@ impl TaskControlBlock {
                     parent: Some(Arc::downgrade(self)),
                     children: Vec::new(),
                     exit_code: 0,
-                    stride: parent_inner.stride,
-                    priority: parent_inner.stride,
-                    syscall_times: parent_inner.syscall_times,
-                    start_running_time: parent_inner.start_running_time,
-                })
+                    stride: 0,
+                    priority: 16,
+                    syscall_times: [0;MAX_SYSCALL_NUM],
+                    start_running_time: 0,
+                }) 
             },
-        });
+        }); 
         // add child
         parent_inner.children.push(task_control_block.clone());
         // modify kernel_sp in trap_cx
@@ -270,8 +270,8 @@ impl TaskControlBlock {
     }
     pub fn set_priority(&self, _prio : isize) -> isize {
         let mut inner = self.inner_exclusive_access();
-        inner.priority = _prio;
-        inner.priority
+        inner.priority = _prio as u8;
+        _prio
     }
 }
 
