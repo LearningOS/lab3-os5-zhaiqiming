@@ -4,7 +4,7 @@ def stride_test(result):
     assert len(result) == 6
     factors = [int(i) for i in result]
     print('\nstride ratio =', factors)
-
+    print('max(factors) / min(factors) = ', max(factors) / min(factors))
     if max(factors) / min(factors) < 1.5:
         print('\033[92m[PASS]\033[0m Stride Test')
         print('\nTest passed: 1/1')
